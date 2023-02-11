@@ -2,7 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.Preferences;
 
 /**
@@ -35,7 +37,7 @@ public class Constants {
     public static final double TRACK_WIDTH = COMP_BOT ? 0.47 : 0.52;
 
     // Maximum linear speed is in meters/second
-    public static final double MAXIMUM_SPEED = 1.25;
+    public static final double MAXIMUM_SPEED = 2;
     // USED ONLY IN AUTO - Maximum acceleration is in meters/second/second
     public static final double MAXIMUM_ACCELERATION = 2.0;
 
@@ -58,6 +60,10 @@ public class Constants {
      * CAN Bus options supported: "rio", "canivore"
      * ***IF CANIVORE FAILS CHANGE SWERVE_BUS_ACTIVE TO false***
      */
+
+    public static final double driveKS = (0.32 / 12);
+    public static final double driveKV = (1.51 / 12);
+    public static final double driveKA = (0.27 / 12);
 
     public static final int SECONDARY_SHOOT_ENCODER_ID = 19;
 
@@ -125,8 +131,8 @@ public class Constants {
     // The sensitivity value for the joysticks - the values are exponentiated to
     // this value, so higher numbers result in a lower sensitivity, 1 results in
     // normal sensitivity, and decimals increase sensitivity
-    public static final double JOYSTICK_SENSITIVITY = 2;
-    public static final double TURNING_SENSITIVITY = 5;
+    public static final double JOYSTICK_SENSITIVITY = 1;
+    public static final double TURNING_SENSITIVITY = 3;
     // Time remaining in match to light up the climb indicator
     public static final double CLIMB_TIME = 40;
 

@@ -42,6 +42,8 @@ class OI {
     public JoystickButton aimLeft;
     private double speed;
 
+    public JoystickButton driveStraight;
+
     public OI() {
         // Configure the button bindings
         try (InputStream input = new FileInputStream("/home/lvuser/deploy/bindings.properties")) {
@@ -75,6 +77,7 @@ class OI {
         driveTag = gunnerStick.getWPIJoystickButton("DriveTag");
         aimLeft = gunnerStick.getWPIJoystickButton("AimLeft");
         autoClimb = gunnerStick.getWPIJoystickButton("AutoClimb");
+        driveStraight = driveStick.getWPIJoystickButton("driveStraight");
     }
 
     public int getElevatorDirection() {
@@ -123,7 +126,7 @@ class OI {
         //rotationVelocity = rotationStick.getAnalog("XVelocity");
         rotationVelocity = driveStick.getAnalog("RotationVelocity");
 
-        speed = (-driveStick.getAnalog("Speed") + 1) / 4 + 0.5;
+        speed = -driveStick.getAnalog("Speed");
 
         // Dead zones
         if (Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)) < Constants.JOY_DEAD_ZONE) {

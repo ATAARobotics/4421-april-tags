@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,6 +8,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.AutoCommand;
 import frc.robot.Constants;
@@ -24,8 +27,12 @@ public class AutoDriveCommand extends CommandBase {
     private double rotationVelocity;
     private boolean FirstAuto;
     private boolean FirstRun;
+    private double currentAngle;
+    private double desiredAngle;
+    private PIDController rotationController = new PIDController(0.9, 0, 0);
     public AutoDriveCommand(SwerveDriveSubsystem swerveDriveSubsystem, AutoCommand autoCommand, boolean firstauto) {
         this.autoCommand = autoCommand;
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
         xVelocity = 0;
         yVelocity = 0;
         rotationVelocity = 0;
@@ -38,6 +45,13 @@ public class AutoDriveCommand extends CommandBase {
     public void initialize() {
         FirstRun = true;
         // Configure the rotation PID to take the shortest route to the setpoint
+        Pose2d currentPose = m_swerveDriveSubsystem.getPose();
+
+        // Get the current angle of the robot
+        currentAngle = currentPose.getRotation().getRadians();
+        desiredAngle = autoCommand.getTargetAngle();
+        System.out.println("First Desired Angle" + desiredAngle);
+        rotationController.setSetpoint(desiredAngle);
     }
 
     @Override
@@ -45,15 +59,12 @@ public class AutoDriveCommand extends CommandBase {
         if(FirstAuto && FirstRun){
             timer.reset();
             timer.start();
-            m_swerveDriveSubsystem.SetAutoOffset(autoCommand.getRotationOffset());
             m_swerveDriveSubsystem.setBrakes(true);
             m_swerveDriveSubsystem.setFieldOriented(true, autoCommand.getRotationOffset());
             m_swerveDriveSubsystem.setInitialPose(new Pose2d(
                 autoCommand.getState(0).poseMeters.getTranslation(), 
                 new Rotation2d(autoCommand.getRotationOffset()))
             );
-            RobotContainer.rotationController.reset(new TrapezoidProfile.State(autoCommand.getRotationOffset(), 0.0));
-            m_swerveDriveSubsystem.resetPosition();
             FirstRun = false;
         }else if (FirstRun){
             timer.reset();
@@ -68,8 +79,8 @@ public class AutoDriveCommand extends CommandBase {
         desiredPose = desiredState.poseMeters;
 
         // Get the current angle of the robot
-        double currentAngle = currentPose.getRotation().getRadians();
-        double desiredAngle = autoCommand.getTargetAngle();
+        currentAngle = m_swerveDriveSubsystem.getHeading();
+        desiredAngle = autoCommand.getTargetAngle();
 
         // Get the total speed the robot should be travelling (not accounting for
         // deviations)
@@ -82,7 +93,10 @@ public class AutoDriveCommand extends CommandBase {
 
         // Get the current rotational velocity from the rotation PID based on the
         // desired angle
-        rotationVelocity = RobotContainer.rotationController.calculate(currentAngle, desiredAngle);
+        
+        rotationVelocity = -rotationController.calculate(currentAngle);
+        System.out.println("current angle: " + currentAngle);
+        System.out.println("rotation velocity: " + rotationVelocity);
         m_swerveDriveSubsystem.setSwerveDrive(
                 xVelocity,
                 -yVelocity,
@@ -92,6 +106,9 @@ public class AutoDriveCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return timer.get() >= autoCommand.getLastState().timeSeconds;
+        SmartDashboard.putNumber("Current Angle", currentAngle);
+        desiredAngle = autoCommand.getTargetAngle();
+        double error =  currentAngle-desiredAngle;
+        return timer.get() >= autoCommand.getLastState().timeSeconds && Math.abs(error) <= 0.1;
     }
 }

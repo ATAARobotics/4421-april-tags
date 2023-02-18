@@ -46,12 +46,12 @@ public class AutoPaths {
         */
 
         straight = new AutoCommand(
-            Math.PI,
+            0,
             Arrays.asList(
-                new Translation2d(5, 5),
-                new Translation2d(5, 3)
+                new Translation2d(0, 0),
+                new Translation2d(0, 4)
             ),
-            Math.PI/2
+            Math.PI
         );
         straight1 = new AutoCommand(
             Math.PI/2,

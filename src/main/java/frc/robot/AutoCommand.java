@@ -41,7 +41,7 @@ public class AutoCommand {
         this.rotationOffset = rotationOffset - 0.00001;
 
         //Store the target angle during execution of this path
-        this.targetAngle = targetAngle + 0.00001;
+        this.targetAngle = targetAngle - 0.00001;
 
         //Store the waypoints for data logging purposes
         if (Constants.AUTO_PATH_LOGGING_ENABLED) {

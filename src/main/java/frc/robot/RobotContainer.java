@@ -37,6 +37,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -75,17 +76,14 @@ public class RobotContainer {
 
     // Auto Stuff
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
-
-    public static ProfiledPIDController rotationController = new ProfiledPIDController(0.9, 0, 0.001,
-            new TrapezoidProfile.Constraints(Constants.MAXIMUM_ROTATIONAL_SPEED_AUTO,
-                    Constants.MAXIMUM_ROTATIONAL_ACCELERATION));
+    private static final PIDController rotationController = new PIDController(0.3, 0, 0);
 
     public RobotContainer() {
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
         // Hardware-based objects
         // NetworkTableInstance inst = NetworkTableInstance.getDefault();
         pigeon = new Pigeon();
-
+        
         m_swerveDriveSubsystem = new SwerveDriveSubsystem(pigeon, initialPosition, "canivore");
         m_climbMotorSubsystem = new ClimbMotorSubsystem();
         m_climbArmSubsystem = new ClimbArmSubsystem();
@@ -94,22 +92,21 @@ public class RobotContainer {
         m_intakeSubsystem = new IntakeSubsystem();
         m_autoPaths = new AutoPaths();
         m_aprilTagLimeLight = new AprilTagLimelight(m_swerveDriveSubsystem.getOdometry());
-        
         // m_limelightSubsystem = new LimelightSubsystem();
 
         // path planner loader // TODO: array list?
 
         HashMap<String, Command> eventMap = new HashMap<>();
 
-        autoBuilder = new SwerveAutoBuilder(
-                m_swerveDriveSubsystem::getPose,
-                m_swerveDriveSubsystem::setInitialPose,
-                new PIDConstants(0.3, 0.0, 0.0),
-                new PIDConstants(0.1, 0.0, 0.001),
-                m_swerveDriveSubsystem.setChassisSpeed,
-                eventMap,
-                false,
-                m_swerveDriveSubsystem);
+        // autoBuilder = new SwerveAutoBuilder(
+        //         m_swerveDriveSubsystem::getPose,
+        //         m_swerveDriveSubsystem::setInitialPose,
+        //         new PIDConstants(0.3, 0.0, 0.0),
+        //         new PIDConstants(0.1, 0.0, 0.001),
+        //         m_swerveDriveSubsystem.setChassisSpeed,
+        //         eventMap,
+        //         false,
+        //         m_swerveDriveSubsystem);
 
         // Set the magazine to index
         new RunCommand(m_shooterSubsystem::diagnostic).schedule();
@@ -124,11 +121,11 @@ public class RobotContainer {
                         () -> 1));
         // m_shooterSubsystem.setDefaultCommand(new
         // RunCommand(m_shooterSubsystem::shooterHighFar, m_shooterSubsystem));
-        /*
-         * autoChooser.setDefaultOption("Straight",
-         * new Straight(m_swerveDriveSubsystem, m_intakeSubsystem,
-         * m_hoodSubsystem, m_magazineSubsystem, m_shooterSubsystem));
-         */
+        
+        autoChooser.setDefaultOption("Straight",
+          new Straight(m_swerveDriveSubsystem, m_intakeSubsystem,
+          m_hoodSubsystem, m_shooterSubsystem, m_autoPaths));
+         
         // autoChooser.addOption("Test Path", testPath);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         LiveWindow.disableAllTelemetry();
@@ -144,9 +141,6 @@ public class RobotContainer {
 
     public void AutoInit(double rotation) {
         rotationController.enableContinuousInput(-Math.PI, Math.PI);
-
-        rotationController.reset(new TrapezoidProfile.State(rotation, 0.0));
-
     }
 
     private void configureBindings() {
@@ -328,7 +322,7 @@ public class RobotContainer {
         return autoChooser;
     }
 
-    public ProfiledPIDController getRotationController() {
+    public static PIDController getRotationController() {
         return rotationController;
     }
 }

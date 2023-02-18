@@ -173,7 +173,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
         if (!safetyDisable) {
             // if (Constants.REPORTING_DIAGNOSTICS) {
-            // SmartDashboard.putNumber("Gyro Value", pigeon.getYaw());
+            SmartDashboard.putNumber("Gyro Value", pigeon.getYaw());
             // }
 
             // Execute functions on each swerve module
@@ -214,7 +214,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
             averagex = velocity * Math.sin(finalAngle);
             averagey = velocity * Math.cos(finalAngle);
 
-            pose = odometry.update(averagex, averagey, pigeon.getYaw(), Timer.getFPGATimestamp());
+            pose = odometry.update(averagex, averagey, pigeon.getYaw() + autoOffset, Timer.getFPGATimestamp());
             SmartDashboard.putNumber("Pose X", pose.getX());
             SmartDashboard.putNumber("Pose Y", pose.getY());
 
@@ -268,8 +268,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
      * Gets the current pose of the robot
      */
     public Pose2d getPose() {
-        System.out.println("Diff X: " + Math.abs(pose.getX() - initialPoseX));
-        System.out.println("Diff Y: " + Math.abs(pose.getY() - initialPoseY));
+        //System.out.println("Diff X: " + Math.abs(pose.getX() - initialPoseX));
+        //System.out.println("Diff Y: " + Math.abs(pose.getY() - initialPoseY));
         return pose;
     }
 

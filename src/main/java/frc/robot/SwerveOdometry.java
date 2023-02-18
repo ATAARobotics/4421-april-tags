@@ -26,9 +26,9 @@ public class SwerveOdometry {
      */
     public Pose2d update(double xVelocity, double yVelocity, double currentAngle, double timestamp) {
         
-        if (!isInitialized) {
-            return new Pose2d(0, 0, new Rotation2d(0));
-        } 
+        // if (!isInitialized) {
+        //     return new Pose2d(0, 0, new Rotation2d(0));
+        // } 
         //Get the amount of time since the last update
         double period = timestamp - lastUpdate;
 
@@ -41,7 +41,7 @@ public class SwerveOdometry {
 
         //Updates the position of the robot based on the distance traveled
         pose = new Pose2d(pose.getX() + distanceX, pose.getY() + distanceY, new Rotation2d(currentAngle));
-
+        
         return pose;
     }
 

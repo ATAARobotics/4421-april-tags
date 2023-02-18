@@ -77,10 +77,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        PathPlannerTrajectory pathGroup = PathPlanner.loadPath("1 met", new PathConstraints(0.5, 0.1));
-        m_autonomousCommand = robotContainer.autoBuilder.fullAuto(pathGroup);
+        // PathPlannerTrajectory pathGroup = PathPlanner.loadPath("1 met", new PathConstraints(0.5, 0.1));
+        // m_autonomousCommand = robotContainer.autoBuilder.fullAuto(pathGroup);
 
-        // robotContainer.AutoInit(0);
+        // // robotContainer.AutoInit(0);
+        // m_autonomousCommand.schedule();
+
+        m_autonomousCommand = robotContainer.getAutonomousChooser().getSelected();
+        robotContainer.AutoInit(0);
         m_autonomousCommand.schedule();
     }
 
